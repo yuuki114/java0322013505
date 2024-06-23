@@ -9,7 +9,7 @@
           <el-input size="large" prefix-icon="UserFilled" v-model="loginForm.username" />
         </el-form-item>
         <el-form-item label="密码">
-          <el-input size="large" prefix-icon="Unlock" v-model="loginForm.password" />
+          <el-input size="large" prefix-icon="Unlock" v-model="loginForm.password" type="password"/>
         </el-form-item>
         <el-button type="primary" size="large" @click="login">登录</el-button>
       </el-form>
