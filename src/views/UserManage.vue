@@ -10,10 +10,10 @@
     <el-row :gutter="20">
       <el-col :span="10">
         <el-input
-            placeholder="请输入用户名搜索" size="large"
+            placeholder="请输入用户名搜索" size="large" v-model="queryInfo.query" clearable @clear="getUserList"
         >
           <template #append>
-            <el-button icon="Search"/>
+            <el-button icon="Search" @click="getUserList"/>
           </template>
         </el-input>
       </el-col>
