@@ -36,7 +36,7 @@
           <el-tooltip
               class="box-item"
               effect="dark"
-              content="用户编辑"
+              content="编辑用户"
               placement="top"
               :enterable="false"
           >
@@ -49,7 +49,7 @@
               placement="top"
               :enterable="false"
           >
-            <el-button type="warning" icon="Setting" circle/>
+            <el-button type="warning" icon="Setting" @click="showSetRole(scope.row)" circle/>
           </el-tooltip>
           <el-tooltip
               class="box-item"
@@ -82,7 +82,7 @@
       title="添加用户"
       width="40%"
   >
-    <el-form :model="userInfo" :rules="addUserRules" label-width="120px">
+    <el-form class="addElForm" :model="userInfo" :rules="addUserRules" label-width="120px">
       <el-form-item label="用户名" prop="username">
         <el-input size="large" prefix-icon="UserFilled" v-model="userInfo.username"/>
       </el-form-item>
@@ -108,7 +108,7 @@
       title="编辑用户"
       width="40%"
   >
-    <el-form :model="userInfo" label-width="120px">
+    <el-form class="editElForm" :model="userInfo" label-width="120px">
       <el-form-item label="用户名">
         <el-input size="large" prefix-icon="UserFilled" v-model="userInfo.username" disabled/>
       </el-form-item>
@@ -123,6 +123,27 @@
       <div class="dialog-footer">
         <el-button @click="editUserDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="editUser">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
+  <el-dialog
+      v-model="setRoleDialogVisible"
+      title="分配角色"
+      width="40%"
+  >
+    <el-form class="setRoleElForm" :model="userInfo" label-width="120px">
+      <p>用户：{{userInfo.username}}</p>
+      <p>当前角色：{{userInfo.role_name}}</p>
+      <p>请选择新的角色：
+        <el-select v-model="selectedRoleId" class="m-2" placeholder="请选择" size="large">
+          <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id"/>
+        </el-select>
+      </p>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveRole">确认</el-button>
       </div>
     </template>
   </el-dialog>
@@ -143,6 +164,9 @@ export default {
       total: 0,
       addUserDialogVisible: false,
       editUserDialogVisible: false,
+      setRoleDialogVisible: false,
+      selectedRoleId: '',
+      roleList: [],
       userInfo: {
         username: '',
         password: '',
@@ -288,7 +312,7 @@ export default {
       })
       this.editUserDialogVisible = false;
     },
-    delUser(id){
+    delUser(id) {
       ElMessageBox.confirm(
           '此操作将彻底删除该用户，确认要删除吗？',
           '警告',
@@ -307,8 +331,7 @@ export default {
                   message: '删除成功',
                 })
                 that.getUserList();
-              }
-              else {
+              } else {
                 ElMessage.error('删除失败：' + res.data.meta.msg);
               }
             })
@@ -319,7 +342,33 @@ export default {
               message: '取消删除',
             })
           })
-    }
+    },
+    showSetRole(userInfo){
+      this.setRoleDialogVisible = true;
+      this.userInfo = userInfo;
+      this.$axios.get('roles').then((res) => {
+        if(res.data.meta.status === 200) {
+          this.roleList = res.data.data;
+        }
+        else {
+          ElMessage.error('获取角色列表失败：' + res.data.meta.msg);
+        }
+      })
+    },
+    saveRole(){
+      this.$axios.put('users/' + this.userInfo.id + '/role', {
+        rid: this.selectedRoleId
+      }).then((res) => {
+        if(res.data.meta.status === 200) {
+          ElMessage.success('分配角色成功');
+          this.getUserList();
+        }
+        else {
+          ElMessage.error('分配角色失败：' + res.data.meta.msg);
+        }
+      })
+      this.setRoleDialogVisible = false;
+    },
   }
 }
 </script>
@@ -335,14 +384,24 @@ export default {
 .el-pagination {
   margin-top: 5px;
 }
-.el-form{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
+
+.addElForm, .editElForm{
+  .el-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .el-form-item {
+    margin-right: 60px;
+  }
 }
-.el-form-item{
-  margin-right: 60px;
+
+.setRoleElForm{
+  .el-select{
+    width: 130px;
+  }
 }
 </style>
