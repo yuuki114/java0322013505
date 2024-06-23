@@ -40,7 +40,7 @@
           placement="top"
           :enterable="false"
       >
-        <el-button type="primary" icon="Edit" circle />
+        <el-button type="primary" icon="Edit" circle/>
       </el-tooltip>
       <el-tooltip
           class="box-item"
@@ -49,7 +49,7 @@
           placement="top"
           :enterable="false"
       >
-        <el-button type="warning" icon="Setting" circle />
+        <el-button type="warning" icon="Setting" circle/>
       </el-tooltip>
       <el-tooltip
           class="box-item"
@@ -58,10 +58,22 @@
           placement="top"
           :enterable="false"
       >
-        <el-button type="danger" icon="Delete" circle />
+        <el-button type="danger" icon="Delete" circle/>
       </el-tooltip>
     </el-table-column>
   </el-table>
+  <el-pagination
+      v-model:current-page="queryInfo.pagenum"
+      v-model:page-size="queryInfo.pagesize"
+      :page-sizes="[2, 3, 5, 10]"
+      :small="false"
+      :disabled="false"
+      :background="false"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+  />
 </template>
 
 <script>
@@ -71,48 +83,62 @@ export default {
   data() {
     return {
       userList: [],
-      queryInfo:{
+      queryInfo: {
         query: '',
         pagenum: 1,
         pagesize: 3
-      }
+      },
+      total: 0
     }
   },
   created() {
     this.getUserList();
   },
   methods: {
-    getUserList(){
+    getUserList() {
       const that = this;
       this.$axios.get('users', {
         params: this.queryInfo
       }).then((res) => {
         console.log(res);
-        if(res.data.meta.status === 200) {
+        if (res.data.meta.status === 200) {
           that.userList = res.data.data.users;
-        }
-        else {
+          that.total = res.data.data.total;
+        } else {
           ElMessage.error('获取用户列表失败：' + res.data.meta.msg);
         }
       })
     },
-    changeUserState(userInfo){
+    changeUserState(userInfo) {
       this.$axios.put('users/' + userInfo.id + '/state/' + userInfo.mg_state).then((res) => {
-        if(res.data.meta.status === 200) {
+        if (res.data.meta.status === 200) {
           ElMessage.success('修改用户状态成功');
-        }
-        else {
+        } else {
           ElMessage.error('修改用户状态失败：' + res.data.meta.msg);
           userInfo.mg_state = !userInfo.mg_state;
         }
       })
+    },
+    handleSizeChange(val) {
+      this.queryInfo.pagesize = val;
+      this.getUserList();
+    },
+    handleCurrentChange(val){
+      this.queryInfo.pagenum = val;
+      this.getUserList();
     }
   }
 }
 </script>
 
 <style scoped lang="less">
-  .box-card{
-    margin-top: 20px;
+.box-card {
+  margin-top: 20px;
+}
+.el-table{
+  margin-top: 10px;
+}
+.el-pagination{
+  margin-top: 5px;
 }
 </style>
