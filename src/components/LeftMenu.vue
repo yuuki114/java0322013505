@@ -14,7 +14,7 @@
           </el-icon>
           <span>{{ menu.authName }}</span>
         </template>
-        <el-menu-item :index="submenu.id" v-for="(submenu, index) in menu.children" :key="submenu.id">
+        <el-menu-item :index="submenu.id" v-for="(submenu, index) in menu.children" :key="submenu.id" @click="goMenu(submenu.path)">
           <el-icon>
             <Menu/>
           </el-icon>
@@ -50,8 +50,10 @@ export default {
           ElMessage.error('获取菜单列表失败：' + res.data.meta.msg);
         }
       })
+    },
+    goMenu(path){
+      this.$router.push('/' + path);
     }
-
   }
 }
 </script>

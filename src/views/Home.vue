@@ -10,7 +10,7 @@
         </el-aside>
         <el-container>
           <el-main>
-
+            <router-view></router-view>
           </el-main>
           <el-footer>
 

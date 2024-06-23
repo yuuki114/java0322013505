@@ -1,6 +1,8 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
+import Welcome from '../views/Welcome.vue'
+import UserManage from '../views/UserManage.vue'
 
 
 const routes = [
@@ -15,9 +17,19 @@ const routes = [
     {
         path: '/home',
         component: Home,
-        meta:{
+        meta: {
             title: '首页'
-        }
+        },
+        children: [
+            {
+                path: '',
+                component: Welcome,
+            },
+            {
+                path: '/users',
+                component: UserManage,
+            }
+        ]
     }
 ]
 
@@ -27,11 +39,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.meta.title){
+    if (to.meta.title) {
         document.title = to.meta.title
     }
     const tokenStr = window.sessionStorage.getItem('token')
-    if(to.path !== '/login' && !tokenStr){
+    if (to.path !== '/login' && !tokenStr) {
         return next('/login')
     }
     next();
