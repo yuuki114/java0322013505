@@ -1,12 +1,5 @@
 <template>
-  <div>
-    <el-button>Default</el-button>
-    <el-button type="primary">Primary</el-button>
-    <el-icon size="size" color="color">
-      <Edit />
-    </el-icon>
-    <el-icon><Plus /></el-icon>
-  </div>
+  <router-view></router-view>
 </template>
 
 <style lang="less">
