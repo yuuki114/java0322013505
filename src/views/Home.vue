@@ -6,7 +6,7 @@
       </el-header>
       <el-container>
         <el-aside width="200px">
-
+          <LeftMenu/>
         </el-aside>
         <el-container>
           <el-main>
@@ -21,8 +21,11 @@
 </template>
 
 <script>
+import LeftMenu from "@/components/LeftMenu.vue";
+
 export default {
   name: 'Home',
+  components: {LeftMenu},
   methods: {
     logout() {
       window.sessionStorage.removeItem('token');
