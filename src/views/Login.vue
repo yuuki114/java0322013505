@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: 'Login',
   data() {
@@ -30,7 +31,14 @@ export default {
   },
   methods: {
     login() {
-      this.$router.push('/home')
+      console.log("点击登录了");
+      const that = this;
+      const url = 'http://127.0.0.1:8888/api/private/v1/login';
+      axios.post(url, this.loginForm).then((res) => {
+        console.log(res);
+        that.$router.push('/home');
+        window.sessionStorage.setItem('token', res.data.data.token);
+      })
     }
   }
 }
