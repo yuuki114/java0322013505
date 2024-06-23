@@ -18,62 +18,89 @@
         </el-input>
       </el-col>
       <el-col :span="4">
-        <el-button type="primary">添加用户</el-button>
+        <el-button type="primary" @click="addUserDialogVisible = true">添加用户</el-button>
       </el-col>
     </el-row>
+    <el-table :data="userList" border style="width: 100%">
+      <el-table-column prop="username" label="用户名" width="180"/>
+      <el-table-column prop="mobile" label="手机号" width="180"/>
+      <el-table-column prop="email" label="邮箱"/>
+      <el-table-column prop="role_name" label="角色"/>
+      <el-table-column label="状态">
+        <template #default="scope">
+          <el-switch v-model="scope.row.mg_state" @click="changeUserState(scope.row)"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="用户编辑"
+            placement="top"
+            :enterable="false"
+        >
+          <el-button type="primary" icon="Edit" circle/>
+        </el-tooltip>
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="分配角色"
+            placement="top"
+            :enterable="false"
+        >
+          <el-button type="warning" icon="Setting" circle/>
+        </el-tooltip>
+        <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="删除用户"
+            placement="top"
+            :enterable="false"
+        >
+          <el-button type="danger" icon="Delete" circle/>
+        </el-tooltip>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+        v-model:current-page="queryInfo.pagenum"
+        v-model:page-size="queryInfo.pagesize"
+        :page-sizes="[2, 3, 5, 10]"
+        :small="false"
+        :disabled="false"
+        :background="false"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+    />
   </el-card>
-  <el-table :data="userList" border style="width: 100%">
-    <el-table-column prop="username" label="用户名" width="180"/>
-    <el-table-column prop="mobile" label="手机号" width="180"/>
-    <el-table-column prop="email" label="邮箱"/>
-    <el-table-column prop="role_name" label="角色"/>
-    <el-table-column label="状态">
-      <template #default="scope">
-        <el-switch v-model="scope.row.mg_state" @click="changeUserState(scope.row)"/>
-      </template>
-    </el-table-column>
-    <el-table-column label="操作">
-      <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="用户编辑"
-          placement="top"
-          :enterable="false"
-      >
-        <el-button type="primary" icon="Edit" circle/>
-      </el-tooltip>
-      <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="分配角色"
-          placement="top"
-          :enterable="false"
-      >
-        <el-button type="warning" icon="Setting" circle/>
-      </el-tooltip>
-      <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="删除用户"
-          placement="top"
-          :enterable="false"
-      >
-        <el-button type="danger" icon="Delete" circle/>
-      </el-tooltip>
-    </el-table-column>
-  </el-table>
-  <el-pagination
-      v-model:current-page="queryInfo.pagenum"
-      v-model:page-size="queryInfo.pagesize"
-      :page-sizes="[2, 3, 5, 10]"
-      :small="false"
-      :disabled="false"
-      :background="false"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-  />
+
+  <el-dialog
+      v-model="addUserDialogVisible"
+      title="添加用户"
+      width="40%"
+  >
+    <el-form :model="userInfo" :rules="addUserRules" label-width="120px">
+      <el-form-item label="用户名" prop="username">
+        <el-input size="large" prefix-icon="UserFilled" v-model="userInfo.username"/>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input size="large" prefix-icon="Unlock" v-model="userInfo.password" type="password"/>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input size="large" prefix-icon="Message" v-model="userInfo.email"/>
+      </el-form-item>
+      <el-form-item label="手机号" prop="mobile">
+        <el-input size="large" prefix-icon="Iphone" v-model="userInfo.mobile"/>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="addUser">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
@@ -88,7 +115,89 @@ export default {
         pagenum: 1,
         pagesize: 3
       },
-      total: 0
+      total: 0,
+      addUserDialogVisible: false,
+      userInfo: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      addUserRules: {
+        username: [
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          },
+          {
+            min: 3,
+            max: 10,
+            message: '用户名长度必须为3-10个字符',
+            trigger: 'blur'
+          },
+        ],
+        password: [
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          },
+          {
+            min: 6,
+            max: 15,
+            message: '密码长度必须为6-15个字符',
+            trigger: 'blur'
+          },
+          {
+            validator: (rule, value, callback) => {
+              const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{6,15}/;
+              if (!reg.test(value)) {
+                callback(new Error('密码必须包含至少一个大写字母、一个小写字母、一个数字和一个特殊字符'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ],
+        email: [
+          {
+            required: true,
+            message: '请输入邮箱',
+            trigger: 'blur'
+          },
+          {
+            validator: (rule, value, callback) => {
+              const reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/;
+              if (!reg.test(value)) {
+                callback(new Error('请输入正确的邮箱格式'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ],
+        mobile: [
+          {
+            required: true,
+            message: '请输入手机号',
+            trigger: 'blur'
+          },
+          {
+            validator: (rule, value, callback) => {
+              const reg = /^1[3-9]\d{9}$/;
+              if (!reg.test(value)) {
+                callback(new Error('请输入正确的手机号格式'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ]
+      }
     }
   },
   created() {
@@ -123,22 +232,34 @@ export default {
       this.queryInfo.pagesize = val;
       this.getUserList();
     },
-    handleCurrentChange(val){
+    handleCurrentChange(val) {
       this.queryInfo.pagenum = val;
       this.getUserList();
+    },
+    addUser() {
+      this.$axios.post('users', this.userInfo).then((res) => {
+        if (res.data.meta.status === 201) {
+          ElMessage.success('添加用户成功');
+          this.getUserList();
+          this.addUserDialogVisible = false;
+        } else {
+          ElMessage.error('添加用户失败：' + res.data.meta.msg);
+        }
+      })
     }
   }
 }
 </script>
-
 <style scoped lang="less">
 .box-card {
   margin-top: 20px;
 }
-.el-table{
+
+.el-table {
   margin-top: 10px;
 }
-.el-pagination{
+
+.el-pagination {
   margin-top: 5px;
 }
 </style>
