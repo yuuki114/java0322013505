@@ -32,7 +32,35 @@
         <el-switch v-model="scope.row.mg_state" @click="changeUserState(scope.row)"/>
       </template>
     </el-table-column>
-    <el-table-column label="操作"/>
+    <el-table-column label="操作">
+      <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="用户编辑"
+          placement="top"
+          :enterable="false"
+      >
+        <el-button type="primary" icon="Edit" circle />
+      </el-tooltip>
+      <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="分配角色"
+          placement="top"
+          :enterable="false"
+      >
+        <el-button type="warning" icon="Setting" circle />
+      </el-tooltip>
+      <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="删除用户"
+          placement="top"
+          :enterable="false"
+      >
+        <el-button type="danger" icon="Delete" circle />
+      </el-tooltip>
+    </el-table-column>
   </el-table>
 </template>
 
