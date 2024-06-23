@@ -303,4 +303,14 @@ export default {
 .el-pagination {
   margin-top: 5px;
 }
+.el-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.el-form-item{
+  margin-right: 60px;
+}
 </style>
