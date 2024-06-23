@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import {ElMessage} from "element-plus";
 export default {
   name: 'Login',
   data() {
@@ -33,11 +33,16 @@ export default {
     login() {
       console.log("点击登录了");
       const that = this;
-      const url = 'http://127.0.0.1:8888/api/private/v1/login';
-      axios.post(url, this.loginForm).then((res) => {
+      this.$axios.post('login', this.loginForm).then((res) => {
         console.log(res);
-        that.$router.push('/home');
-        window.sessionStorage.setItem('token', res.data.data.token);
+        if (res.data.meta.status === 200) {
+          window.sessionStorage.setItem('token', res.data.data.token);
+          that.$router.push('/home');
+          ElMessage.success('登录成功');
+        }
+        else {
+          ElMessage.error('登录失败：' + res.data.meta.msg);
+        }
       })
     }
   }
