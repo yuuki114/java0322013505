@@ -58,7 +58,7 @@
               placement="top"
               :enterable="false"
           >
-            <el-button type="danger" icon="Delete" circle/>
+            <el-button type="danger" icon="Delete" @click="delUser(scope.row.id)" circle/>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -129,7 +129,7 @@
 </template>
 
 <script>
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 export default {
   data() {
@@ -288,6 +288,38 @@ export default {
       })
       this.editUserDialogVisible = false;
     },
+    delUser(id){
+      ElMessageBox.confirm(
+          '此操作将彻底删除该用户，确认要删除吗？',
+          '警告',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+      )
+          .then(() => {
+            const that = this;
+            this.$axios.delete('users/' + id).then((res) => {
+              if (res.data.meta.status === 200) {
+                ElMessage({
+                  type: 'success',
+                  message: '删除成功',
+                })
+                that.getUserList();
+              }
+              else {
+                ElMessage.error('删除失败：' + res.data.meta.msg);
+              }
+            })
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'info',
+              message: '取消删除',
+            })
+          })
+    }
   }
 }
 </script>
