@@ -32,33 +32,35 @@
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="用户编辑"
-            placement="top"
-            :enterable="false"
-        >
-          <el-button type="primary" icon="Edit" circle/>
-        </el-tooltip>
-        <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="分配角色"
-            placement="top"
-            :enterable="false"
-        >
-          <el-button type="warning" icon="Setting" circle/>
-        </el-tooltip>
-        <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="删除用户"
-            placement="top"
-            :enterable="false"
-        >
-          <el-button type="danger" icon="Delete" circle/>
-        </el-tooltip>
+        <template #default="scope">
+          <el-tooltip
+              class="box-item"
+              effect="dark"
+              content="用户编辑"
+              placement="top"
+              :enterable="false"
+          >
+            <el-button type="primary" icon="Edit" @click="showEditUser(scope.row)" circle/>
+          </el-tooltip>
+          <el-tooltip
+              class="box-item"
+              effect="dark"
+              content="分配角色"
+              placement="top"
+              :enterable="false"
+          >
+            <el-button type="warning" icon="Setting" circle/>
+          </el-tooltip>
+          <el-tooltip
+              class="box-item"
+              effect="dark"
+              content="删除用户"
+              placement="top"
+              :enterable="false"
+          >
+            <el-button type="danger" icon="Delete" circle/>
+          </el-tooltip>
+        </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -101,6 +103,29 @@
       </div>
     </template>
   </el-dialog>
+  <el-dialog
+      v-model="editUserDialogVisible"
+      title="编辑用户"
+      width="40%"
+  >
+    <el-form :model="userInfo" label-width="120px">
+      <el-form-item label="用户名">
+        <el-input size="large" prefix-icon="UserFilled" v-model="userInfo.username" disabled/>
+      </el-form-item>
+      <el-form-item label="邮箱">
+        <el-input size="large" prefix-icon="Message" v-model="userInfo.email"/>
+      </el-form-item>
+      <el-form-item label="手机号">
+        <el-input size="large" prefix-icon="Iphone" v-model="userInfo.mobile"/>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="editUserDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="editUser">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
@@ -117,6 +142,7 @@ export default {
       },
       total: 0,
       addUserDialogVisible: false,
+      editUserDialogVisible: false,
       userInfo: {
         username: '',
         password: '',
@@ -241,12 +267,27 @@ export default {
         if (res.data.meta.status === 201) {
           ElMessage.success('添加用户成功');
           this.getUserList();
-          this.addUserDialogVisible = false;
         } else {
           ElMessage.error('添加用户失败：' + res.data.meta.msg);
         }
       })
-    }
+      this.addUserDialogVisible = false;
+    },
+    showEditUser(userInfo) {
+      this.userInfo = userInfo;
+      this.editUserDialogVisible = true;
+    },
+    editUser() {
+      this.$axios.put('users/' + this.userInfo.id, this.userInfo).then((res) => {
+        if (res.data.meta.status === 200) {
+          ElMessage.success('用户更新成功');
+          this.getUserList();
+        } else {
+          ElMessage.error('用户更新失败：' + res.data.meta.msg);
+        }
+      })
+      this.editUserDialogVisible = false;
+    },
   }
 }
 </script>
