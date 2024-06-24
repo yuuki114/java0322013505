@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
 import Welcome from '../views/Welcome.vue'
 import UserManage from '../views/UserManage.vue'
+import Roles from '../views/Roles.vue'
 
 
 const routes = [
@@ -28,6 +29,10 @@ const routes = [
             {
                 path: '/users',
                 component: UserManage,
+            },
+            {
+                path: '/roles',
+                component: Roles,
             }
         ]
     }
