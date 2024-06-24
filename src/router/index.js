@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Welcome from '../views/Welcome.vue'
 import UserManage from '../views/UserManage.vue'
 import Roles from '../views/Roles.vue'
+import Rights from '../views/Rights.vue'
 
 
 const routes = [
@@ -33,6 +34,10 @@ const routes = [
             {
                 path: '/roles',
                 component: Roles,
+            },
+            {
+                path: '/rights',
+                component: Rights,
             }
         ]
     }
