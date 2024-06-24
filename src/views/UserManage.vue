@@ -98,7 +98,7 @@
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="addUserDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="addUser">确认</el-button>
       </div>
     </template>
