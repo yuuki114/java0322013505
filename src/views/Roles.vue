@@ -14,18 +14,27 @@
           <template #default="scope">
             <el-row v-for="(Right1, index) in scope.row.children" :key="Right1.id">
               <el-col :span="5">
-                <el-tag type="primary" closable @close="removeRightById(scope.row, Right1.id)">{{Right1.authName}}</el-tag>
-                <el-icon><CaretRight /></el-icon>
+                <el-tag type="primary" closable @close="removeRightById(scope.row, Right1.id)">{{ Right1.authName }}
+                </el-tag>
+                <el-icon>
+                  <CaretRight/>
+                </el-icon>
               </el-col>
               <el-col :span="19">
-                <el-row :class="[Right2 === 0 ? '' : 'bdtop','vcenter']" v-for="(Right2, index) in Right1.children" :key="Right2.id">
+                <el-row :class="[Right2 === 0 ? '' : 'bdtop','vcenter']" v-for="(Right2, index) in Right1.children"
+                        :key="Right2.id">
                   <el-col :span="6">
-                    <el-tag type="success" closable @close="removeRightById(scope.row, Right2.id)">{{Right2.authName}}</el-tag>
-                    <el-icon><CaretRight /></el-icon>
+                    <el-tag type="success" closable @close="removeRightById(scope.row, Right2.id)">
+                      {{ Right2.authName }}
+                    </el-tag>
+                    <el-icon>
+                      <CaretRight/>
+                    </el-icon>
                   </el-col>
                   <el-col :span="18">
-                    <el-tag type="warning" v-for="(Right3, index) in Right2.children" :key="Right3.id" closable @close="removeRightById(scope.row, Right3.id)">
-                      {{Right3.authName}}
+                    <el-tag type="warning" v-for="(Right3, index) in Right2.children" :key="Right3.id" closable
+                            @close="removeRightById(scope.row, Right3.id)">
+                      {{ Right3.authName }}
                     </el-tag>
                   </el-col>
                 </el-row>
@@ -87,6 +96,30 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog
+        v-model="setRoleDialogVisible"
+        title="分配权限"
+        width="40%"
+    >
+      <div style="max-height: 400px; overflow: auto;">
+        <el-tree
+            :data="rightList"
+            :props="treeProps"
+            show-checkbox
+            node-key="id"
+            :default-checked-keys="defaultCheckedKeys"
+            default-expand-all
+            ref="treeRef"
+        />
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="setRoleDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="setRole">确认</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -97,12 +130,20 @@ export default {
   data() {
     return {
       roleList: [],
+      rightList: [],
       addRoleDialogVisible: false,
       editRoleDialogVisible: false,
+      setRoleDialogVisible: false,
       roleInfo: {
         roleName: '',
         roleDesc: ''
       },
+      treeProps: {
+        label: 'authName',
+        children: 'children'
+      },
+      defaultCheckedKeys: [],
+      roleId: '',
     }
   },
   created() {
@@ -140,7 +181,7 @@ export default {
       })
       this.editRoleDialogVisible = false;
     },
-    delRole(id){
+    delRole(id) {
       ElMessageBox.confirm(
           '此操作将彻底删除该角色，确认要删除吗？',
           '警告',
@@ -171,7 +212,7 @@ export default {
             })
           })
     },
-    removeRightById(role, rightId){
+    removeRightById(role, rightId) {
       ElMessageBox.confirm(
           '此操作将彻底删除该权限，确认要删除吗？',
           '警告',
@@ -183,7 +224,7 @@ export default {
       )
           .then(() => {
             const that = this;
-            this.$axios.delete('roles/' + role.id + '/rights/' +  rightId).then((res) => {
+            this.$axios.delete('roles/' + role.id + '/rights/' + rightId).then((res) => {
               if (res.data.meta.status === 200) {
                 ElMessage({
                   type: 'success',
@@ -202,6 +243,39 @@ export default {
             })
           })
     },
+    showSetRole(role) {
+      this.roleId = role.id;
+      this.$axios.get('rights/tree').then(res => {
+        console.log(res)
+        this.rightList = res.data.data;
+        this.getLeafKeys(role, this.defaultCheckedKeys)
+        this.setRoleDialogVisible = true
+      })
+    },
+    getLeafKeys(node, arr){
+      if(!node.children){
+        return arr.push(node.id)
+      }
+      node.children.forEach(item => {
+        this.getLeafKeys(item, arr)
+      })
+    },
+    setRole() {
+      const keys = [...this.$refs.treeRef.getCheckedKeys(), ...this.$refs.treeRef.getHalfCheckedKeys()]
+      const idStr = keys.join(',')
+
+      this.$axios.post('roles/' + this.roleId + '/rights', {
+        rids: idStr
+      }).then(res => {
+        if (res.data.meta.status === 200) {
+          ElMessage.success('分配权限成功');
+          this.getRoleList();
+        } else {
+          ElMessage.error('分配权限失败：' + res.data.meta.msg);
+        }
+      })
+      this.setRoleDialogVisible = false;
+    }
   }
 }
 </script>
