@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 export default {
   data() {
@@ -116,6 +116,37 @@ export default {
         }
       })
       this.editRoleDialogVisible = false;
+    },
+    delRole(id){
+      ElMessageBox.confirm(
+          '此操作将彻底删除该角色，确认要删除吗？',
+          '警告',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+      )
+          .then(() => {
+            const that = this;
+            this.$axios.delete('roles/' + id).then((res) => {
+              if (res.data.meta.status === 200) {
+                ElMessage({
+                  type: 'success',
+                  message: '删除成功',
+                })
+                that.getRoleList();
+              } else {
+                ElMessage.error('删除失败：' + res.data.meta.msg);
+              }
+            })
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'info',
+              message: '取消删除',
+            })
+          })
     },
   }
 }
