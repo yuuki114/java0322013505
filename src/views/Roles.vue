@@ -22,15 +22,42 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <el-dialog
+        v-model="addRoleDialogVisible"
+        title="添加角色"
+        width="40%"
+    >
+      <el-form class="addRoleForm" :model="roleInfo" label-width="120px">
+        <el-form-item label="角色名称">
+          <el-input size="large" prefix-icon="UserFilled" v-model="roleInfo.roleName"/>
+        </el-form-item>
+        <el-form-item label="角色描述">
+          <el-input size="large" prefix-icon="Tickets" v-model="roleInfo.roleDesc"/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="addRoleDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="addRole">确认</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import {ElMessage} from "element-plus";
+
 export default {
   data(){
     return{
       roleList: [],
       addRoleDialogVisible: false,
+      roleInfo: {
+        roleName: '',
+        roleDesc: ''
+      },
     }
   },
   created() {
@@ -41,6 +68,17 @@ export default {
       this.$axios.get('roles').then(res=>{
         this.roleList = res.data.data;
       })
+    },
+    addRole(){
+      this.$axios.post('roles', this.roleInfo).then((res) => {
+        if (res.data.meta.status === 201) {
+          ElMessage.success('添加角色成功');
+          this.getRoleList();
+        } else {
+          ElMessage.error('添加角色失败：' + res.data.meta.msg);
+        }
+      })
+      this.addRoleDialogVisible = false;
     }
   }
 }
@@ -51,6 +89,20 @@ export default {
   margin-top: 20px;
   .btn-addRole{
     margin-bottom: 10px;
+  }
+}
+
+.addRoleForm{
+  .el-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .el-form-item {
+    margin-right: 60px;
   }
 }
 </style>
