@@ -5,6 +5,8 @@ import Welcome from '../views/Welcome.vue'
 import UserManage from '../views/UserManage.vue'
 import Roles from '../views/Roles.vue'
 import Rights from '../views/Rights.vue'
+import Goods from '../views/Goods.vue';
+import Categories from '../views/Categories.vue';
 
 
 const routes = [
@@ -38,6 +40,14 @@ const routes = [
             {
                 path: '/rights',
                 component: Rights,
+            },
+            {
+                path: '/goods',
+                component: Goods,
+            },
+            {
+                path: '/categories',
+                component: Categories,
             }
         ]
     }
