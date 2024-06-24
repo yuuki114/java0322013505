@@ -13,7 +13,7 @@
             <router-view></router-view>
           </el-main>
           <el-footer>
-
+            <FooterAuthor/>
           </el-footer>
         </el-container>
       </el-container>
@@ -22,10 +22,11 @@
 
 <script>
 import LeftMenu from "@/components/LeftMenu.vue";
+import FooterAuthor from "@/components/FooterAuthor.vue";
 
 export default {
   name: 'Home',
-  components: {LeftMenu},
+  components: {LeftMenu, FooterAuthor},
   methods: {
     logout() {
       window.sessionStorage.removeItem('token');
