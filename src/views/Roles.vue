@@ -9,8 +9,31 @@
       <el-row>
         <el-button class="btn-addRole" type="primary" @click="addRoleDialogVisible = true">添加角色</el-button>
       </el-row>
-      <el-table :data="roleList" border style="width: 100%">
-        <el-table-column prop="id" label="#" width="180"/>
+      <el-table :data="roleList" border>
+        <el-table-column type="expand">
+          <template #default="scope">
+            <el-row v-for="(Right1, index) in scope.row.children" :key="Right1.id">
+              <el-col :span="5">
+                <el-tag type="primary" closable @close="removeRightById(scope.row, Right1.id)">{{Right1.authName}}</el-tag>
+                <el-icon><CaretRight /></el-icon>
+              </el-col>
+              <el-col :span="19">
+                <el-row :class="[Right2 === 0 ? '' : 'bdtop','vcenter']" v-for="(Right2, index) in Right1.children" :key="Right2.id">
+                  <el-col :span="6">
+                    <el-tag type="success" closable @close="removeRightById(scope.row, Right2.id)">{{Right2.authName}}</el-tag>
+                    <el-icon><CaretRight /></el-icon>
+                  </el-col>
+                  <el-col :span="18">
+                    <el-tag type="warning" v-for="(Right3, index) in Right2.children" :key="Right3.id" closable @close="removeRightById(scope.row, Right3.id)">
+                      {{Right3.authName}}
+                    </el-tag>
+                  </el-col>
+                </el-row>
+              </el-col>
+            </el-row>
+          </template>
+        </el-table-column>
+        <el-table-column type="index" label="ID"/>
         <el-table-column prop="roleName" label="角色名称" width="180"/>
         <el-table-column prop="roleDesc" label="角色描述"/>
         <el-table-column label="操作">
@@ -139,6 +162,37 @@ export default {
               } else {
                 ElMessage.error('删除失败：' + res.data.meta.msg);
               }
+            })
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'info',
+              message: '取消删除',
+            })
+          })
+    },
+    removeRightById(role, rightId){
+      ElMessageBox.confirm(
+          '此操作将彻底删除该权限，确认要删除吗？',
+          '警告',
+          {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+      )
+          .then(() => {
+            const that = this;
+            this.$axios.delete('roles/' + role.id + '/rights/' +  rightId).then((res) => {
+              if (res.data.meta.status === 200) {
+                ElMessage({
+                  type: 'success',
+                  message: '删除成功',
+                })
+              } else {
+                ElMessage.error('删除失败：' + res.data.meta.msg);
+              }
+              role.children = res.data.data
             })
           })
           .catch(() => {
